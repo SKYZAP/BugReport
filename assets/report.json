@@ -1,0 +1,29 @@
+{
+  "reports": [
+    {
+      "title": "This page doesn't work 1",
+      "body": "yea it really sucks",
+      "type": "BUG APP"
+    },
+    {
+      "title": "This page doesn't work 2",
+      "body": "yea it really sucks",
+      "type": "BUG APP"
+    },
+    {
+      "title": "This page doesn't work 3",
+      "body": "yea it really sucks",
+      "type": "BUG APP"
+    },
+    {
+      "title": "This page doesn't work 4",
+      "body": "yea it really sucks",
+      "type": "BUG APP"
+    },
+    {
+      "title": "This page doesn't work 5",
+      "body": "yea it really sucks",
+      "type": "BUG APP"
+    }
+  ]
+}

@@ -135,6 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
 class DrawerPage extends StatelessWidget {
   final String title;
   final String username;
+  List data;
 
   DrawerPage({Key key, this.title, this.username}) : super(key: key);
 
@@ -142,7 +143,7 @@ class DrawerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: Center(child: Text('My Page!')),
+      body: Center(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Add your onPressed code here!

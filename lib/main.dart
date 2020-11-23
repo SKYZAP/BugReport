@@ -1,6 +1,23 @@
+import 'package:bug_report/report.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
+Future<void> main() async {
+  runApp(MyApp());
+
+  final Reports = new Report();
+  final report1 = new Report(
+      id: 0, title: 'Report bugs', body: 'word word word words', type: 'BUG');
+  final report2 = new Report(
+      id: 1, title: 'Report bugs', body: 'word word word words', type: 'BUG');
+  final report3 = new Report(
+      id: 2, title: 'Report bugs', body: 'word word word words', type: 'BUG');
+
+  await Reports.addReport(report1);
+  await Reports.addReport(report2);
+  await Reports.addReport(report3);
+
+  await Reports.resetDb();
+}
 
 class MyApp extends StatelessWidget {
   final appTitle = 'Drawer Demo';
@@ -79,7 +96,6 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {
           if (passwordController.text == "1234" &&
               usernameController.text == "sarah") {
-            print('It works');
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -136,6 +152,7 @@ class DrawerPage extends StatelessWidget {
   final String title;
   final String username;
   List data;
+  var Reports = new Report();
 
   DrawerPage({Key key, this.title, this.username}) : super(key: key);
 
@@ -143,9 +160,47 @@ class DrawerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: Center(),
+      body: Center(
+          child: new FutureBuilder<List<Report>>(
+        future: Reports.fetchReports(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return Container();
+          List<Report> posts = snapshot.data;
+          return new ListView(
+            children: posts
+                .map(
+                  (post) => ListTile(
+                    title: Text('Title: ' + post.title),
+                    subtitle: Text(post.body),
+                    trailing: Icon(Icons.keyboard_arrow_right),
+                    onTap: () {
+                      // do something
+                    },
+                    onLongPress: () {
+                      // do something else
+                    },
+                  ),
+                )
+                .toList(),
+          );
+        },
+      )),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
+          var rep = Report(
+              id: await Reports.getIndex() + 1,
+              title: 'Bug Report',
+              body: 'wordy word',
+              type: 'BUG');
+          Reports.addReport(rep);
+          print(await Reports.fetchReports());
+          print(await Reports.getIndex());
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    DrawerPage(title: "Bug Report", username: username)),
+          );
           // Add your onPressed code here!
         },
         child: Icon(Icons.add),
@@ -171,18 +226,89 @@ class DrawerPage extends StatelessWidget {
               ),
             ),
             ListTile(
-              title: Text('Bug Report'),
+              title: Text('View Bug Report'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text('Create Bug Report'),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          DrawerPage(title: "Bug Report", username: username)),
+                      builder: (context) => CreateReportPage(
+                          title: "Create Bug Report", username: username)),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CreateReportPage extends StatelessWidget {
+  final String title;
+  final String username;
+  List data;
+  var Reports = new Report();
+
+  CreateReportPage({Key key, this.title, this.username}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          var rep = Report(
+              id: await Reports.getIndex() + 1,
+              title: 'Bug Report',
+              body: 'wordy word',
+              type: 'BUG');
+          Reports.addReport(rep);
+          print(await Reports.fetchReports());
+          print(await Reports.getIndex());
+          // Add your onPressed code here!
+        },
+        child: Icon(Icons.add),
+        backgroundColor: Colors.green,
+      ),
+      drawer: Drawer(
+        // Add a ListView to the drawer. This ensures the user can scroll
+        // through the options in the drawer if there isn't enough vertical
+        // space to fit everything.
+        child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: Center(
+                  child: CircleAvatar(
+                backgroundColor: Colors.black,
+                child: Text(username),
+                radius: 50.0,
+              )),
+              decoration: BoxDecoration(
+                color: Colors.green,
+              ),
+            ),
+            ListTile(
+              title: Text('View Bug Report'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DrawerPage(
+                          title: "View Bug Report", username: username)),
                 );
               },
             ),
             ListTile(
-              title: Text('Help'),
+              title: Text('Create Bug Report'),
               onTap: () {
                 // Update the state of the app
                 // ...

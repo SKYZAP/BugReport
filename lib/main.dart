@@ -1,8 +1,27 @@
+import 'package:bug_report/User.dart';
 import 'package:bug_report/report.dart';
 import 'package:flutter/material.dart';
 
 Future<void> main() async {
   runApp(MyApp());
+
+  final Users = new User();
+  await Users.createDb();
+  final User1 = new User(
+      id: 0, username: 'Bob', email: 'bob@gmail.com', password: '1234');
+  final User2 = new User(
+      id: 1, username: 'Jim', email: 'jim@gmail.com', password: '1234');
+  final User3 = new User(
+      id: 1, username: 'sarah', email: 'sarah@gmail.com', password: '1234');
+
+  await Users.addUser(User1);
+  await Users.addUser(User2);
+  await Users.addUser(User3);
+  print(await Users.getUser(0));
+  print(await Users.getUser(1));
+  print(await Users.fetchUsers());
+  print(await Users.signIn('Bob', '1234'));
+  print(await Users.signIn('Bob', '124'));
 
   final Reports = new Report();
   final report1 = new Report(
@@ -26,8 +45,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: appTitle,
+        initialRoute: '/',
+        routes: {
+          '/home': (context) => MyHomePage(),
+          '/viewReport': (context) => DrawerPage(),
+          '/createReport': (context) => CreateReportPage()
+        },
         home: MyHomePage(title: appTitle),
-        theme: ThemeData(primaryColor: Colors.green));
+        theme: ThemeData(primaryColor: Colors.greenAccent));
   }
 }
 
@@ -46,7 +71,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  TextStyle style = TextStyle(
+    fontFamily: 'Montserrat',
+    fontSize: 20.0,
+  );
   var username = "";
   var password = "";
 
@@ -54,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final passwordController = TextEditingController(text: password);
     final usernameController = TextEditingController(text: username);
+    final Users = new User();
     final usernameField = TextFormField(
       controller: null,
       initialValue: username,
@@ -86,28 +115,55 @@ class _MyHomePageState extends State<MyHomePage> {
           border:
               OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
+    void _showAlertDialog(String message) async {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(message),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Ok'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     final loginButton = Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
-      color: Colors.green,
+      color: Colors.greenAccent,
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () {
-          if (passwordController.text == "1234" &&
-              usernameController.text == "sarah") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      DrawerPage(title: "Bug Report", username: username)),
-            );
+        onPressed: () async {
+          try {
+            if (await Users.signIn(
+                usernameController.text, passwordController.text)) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        DrawerPage(title: "Bug Report", username: username)),
+              );
+            } else {
+              _showAlertDialog("Invalid username or password");
+            }
+          } catch (error) {
+            _showAlertDialog("Invalid username or password");
           }
         },
         child: Text("Login",
             textAlign: TextAlign.center,
             style: style.copyWith(
-                color: Colors.white, fontWeight: FontWeight.bold)),
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                backgroundColor: Colors.greenAccent)),
       ),
     );
 
@@ -198,13 +254,13 @@ class DrawerPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    DrawerPage(title: "Bug Report", username: username)),
+                builder: (context) => CreateReportPage(
+                    title: "Create Bug Report", username: username)),
           );
           // Add your onPressed code here!
         },
         child: Icon(Icons.add),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.greenAccent,
       ),
       drawer: Drawer(
         // Add a ListView to the drawer. This ensures the user can scroll
@@ -217,12 +273,15 @@ class DrawerPage extends StatelessWidget {
             DrawerHeader(
               child: Center(
                   child: CircleAvatar(
-                backgroundColor: Colors.black,
-                child: Text(username),
+                backgroundColor: Colors.white,
+                child: Text(
+                  username,
+                  style: TextStyle(color: Colors.black),
+                ),
                 radius: 50.0,
               )),
               decoration: BoxDecoration(
-                color: Colors.green,
+                color: Colors.greenAccent,
               ),
             ),
             ListTile(
@@ -242,11 +301,47 @@ class DrawerPage extends StatelessWidget {
                 );
               },
             ),
+            SizedBox(
+              height: 380.0,
+            ),
+            ListTile(
+                title: Text('Logout'),
+                onTap: () {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/', (Route<dynamic> route) => false);
+                },
+                trailing: Icon(Icons.logout))
           ],
         ),
       ),
     );
   }
+}
+
+class SlideRightRoute extends PageRouteBuilder {
+  final Widget page;
+  SlideRightRoute({this.page})
+      : super(
+          pageBuilder: (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+          ) =>
+              page,
+          transitionsBuilder: (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+            Widget child,
+          ) =>
+              SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, -1),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        );
 }
 
 class CreateReportPage extends StatelessWidget {
@@ -262,21 +357,6 @@ class CreateReportPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: Center(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          var rep = Report(
-              id: await Reports.getIndex() + 1,
-              title: 'Bug Report',
-              body: 'wordy word',
-              type: 'BUG');
-          Reports.addReport(rep);
-          print(await Reports.fetchReports());
-          print(await Reports.getIndex());
-          // Add your onPressed code here!
-        },
-        child: Icon(Icons.add),
-        backgroundColor: Colors.green,
-      ),
       drawer: Drawer(
         // Add a ListView to the drawer. This ensures the user can scroll
         // through the options in the drawer if there isn't enough vertical
@@ -288,23 +368,22 @@ class CreateReportPage extends StatelessWidget {
             DrawerHeader(
               child: Center(
                   child: CircleAvatar(
-                backgroundColor: Colors.black,
-                child: Text(username),
+                backgroundColor: Colors.white,
+                child: Text(username, style: TextStyle(color: Colors.black)),
                 radius: 50.0,
               )),
               decoration: BoxDecoration(
-                color: Colors.green,
+                color: Colors.greenAccent,
               ),
             ),
             ListTile(
               title: Text('View Bug Report'),
               onTap: () {
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => DrawerPage(
-                          title: "View Bug Report", username: username)),
-                );
+                    context,
+                    SlideRightRoute(
+                        page: DrawerPage(
+                            title: "View Bug Report", username: username)));
               },
             ),
             ListTile(
@@ -316,6 +395,16 @@ class CreateReportPage extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
+            SizedBox(
+              height: 380.0,
+            ),
+            ListTile(
+                title: Text('Logout'),
+                onTap: () {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/', (Route<dynamic> route) => false);
+                },
+                trailing: Icon(Icons.logout))
           ],
         ),
       ),

@@ -1,10 +1,8 @@
 import 'dart:async';
 
-import 'package:json_annotation/json_annotation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-@JsonSerializable()
 class Report {
   Report({this.id, this.title, this.body, this.type});
 
@@ -24,7 +22,7 @@ class Report {
 
   Future<List<Report>> fetchReports() async {
     final Future<Database> database = openDatabase(
-      join(await getDatabasesPath(), 'report.db'),
+      join(await getDatabasesPath(), 'database.db'),
       version: 1,
     );
 
@@ -42,7 +40,7 @@ class Report {
 
   Future<int> getIndex() async {
     final Future<Database> database = openDatabase(
-      join(await getDatabasesPath(), 'report.db'),
+      join(await getDatabasesPath(), 'database.db'),
       version: 1,
     );
     final db = await database;
@@ -52,22 +50,20 @@ class Report {
 
   Future<void> deleteReport(int id) async {
     final Future<Database> database = openDatabase(
-      join(await getDatabasesPath(), 'report.db'),
+      join(await getDatabasesPath(), 'database.db'),
       version: 1,
     );
     final db = await database;
     await db.delete(
       'reports',
-      // Use a `where` clause to delete a specific dog.
       where: "id = ?",
-      // Pass the Dog's id as a whereArg to prevent SQL injection.
       whereArgs: [id],
     );
   }
 
   Future<void> resetDb() async {
     final Future<Database> database = openDatabase(
-      join(await getDatabasesPath(), 'report.db'),
+      join(await getDatabasesPath(), 'database.db'),
       version: 1,
     );
     final db = await database;
@@ -78,7 +74,7 @@ class Report {
 
   Future<void> addReport(Report report) async {
     final Future<Database> database = openDatabase(
-      join(await getDatabasesPath(), 'report.db'),
+      join(await getDatabasesPath(), 'database.db'),
       version: 1,
     );
     // Get a reference to the database.

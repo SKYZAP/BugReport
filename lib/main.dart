@@ -1,4 +1,5 @@
 import 'package:bug_report/User.dart';
+import 'package:bug_report/formScreens.dart';
 import 'package:bug_report/report.dart';
 import 'package:flutter/material.dart';
 
@@ -393,8 +394,6 @@ class SlideRightRoute extends PageRouteBuilder {
 }
 
 class SignUpPageState extends State<SignUpPage> {
-  final _formKey = GlobalKey<FormState>();
-
   TextStyle style = TextStyle(
     fontFamily: 'Montserrat',
     fontSize: 20.0,
@@ -603,7 +602,45 @@ class CreateReportPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: Center(),
+      body: Center(
+        child: ListView(
+          children: [
+            ListTile(
+              title: Text('HIS KKM SIT Lite Version'),
+              subtitle: Text('System Integration Test for Lite Version'),
+              trailing: Icon(Icons.keyboard_arrow_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LiteProductForm()),
+                );
+              },
+            ),
+            ListTile(
+              title: Text('HIS KKM SIT System Testing'),
+              subtitle: Text('System Testing for HIS KKM'),
+              trailing: Icon(Icons.keyboard_arrow_right),
+              onTap: () {
+                // do something
+              },
+              onLongPress: () {
+                // do something else
+              },
+            ),
+            ListTile(
+              title: Text('HIS KKM UAT EMR Basic'),
+              subtitle: Text('User Acceptance for EMR Basis HIS KKM'),
+              trailing: Icon(Icons.keyboard_arrow_right),
+              onTap: () {
+                // do something
+              },
+              onLongPress: () {
+                // do something else
+              },
+            )
+          ],
+        ),
+      ),
       drawer: Drawer(
         // Add a ListView to the drawer. This ensures the user can scroll
         // through the options in the drawer if there isn't enough vertical

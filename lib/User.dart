@@ -4,9 +4,17 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class User {
-  User({this.id, this.username, this.email, this.password});
+  User(
+      {this.id,
+      this.firstName,
+      this.lastName,
+      this.username,
+      this.email,
+      this.password});
 
   final int id;
+  final String firstName;
+  final String lastName;
   final String username;
   final String email;
   final String password;
@@ -14,6 +22,8 @@ class User {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'firstName': firstName,
+      'lastName': lastName,
       'username': username,
       'email': email,
       'password': password,
@@ -31,6 +41,8 @@ class User {
     return List.generate(maps.length, (i) {
       return User(
         id: maps[i]['id'],
+        firstName: maps[i]['firstName'],
+        lastName: maps[i]['lastName'],
         username: maps[i]['username'],
         password: maps[i]['password'],
         email: maps[i]['email'],
@@ -51,6 +63,8 @@ class User {
     List.generate(user.length, (index) {
       return selectedUser = User(
         id: user[index]['id'],
+        firstName: user[index]['firstName'],
+        lastName: user[index]['lastName'],
         username: user[index]['username'],
         password: user[index]['password'],
         email: user[index]['email'],
@@ -71,7 +85,14 @@ class User {
     );
     final db = await database;
     final List<Map<String, dynamic>> user = await db.query('users',
-        columns: ["id", "email", "password", "username"],
+        columns: [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "password",
+          "username"
+        ],
         where: 'id = ?',
         whereArgs: [id]);
 
@@ -80,6 +101,8 @@ class User {
     List.generate(user.length, (index) {
       return selectedUser = User(
         id: user[index]['id'],
+        firstName: user[index]['firstName'],
+        lastName: user[index]['lastName'],
         username: user[index]['username'],
         password: user[index]['password'],
         email: user[index]['email'],
@@ -94,7 +117,7 @@ class User {
       join(await getDatabasesPath(), 'database.db'),
       onCreate: (db, version) {
         db.execute(
-          "CREATE TABLE users(id INTEGER PRIMARY KEY, username TEXT, email TEXT, password TEXT)",
+          "CREATE TABLE users(id INTEGER PRIMARY KEY, firstName TEXT, lastName TEXT, username TEXT, email TEXT, password TEXT)",
         );
         db.execute(
           "CREATE TABLE reports(id INTEGER PRIMARY KEY, title TEXT, body TEXT, type TEXT)",
@@ -109,7 +132,7 @@ class User {
       join(await getDatabasesPath(), 'database.db'),
       onCreate: (db, version) {
         return db.execute(
-          "CREATE TABLE users(id INTEGER PRIMARY KEY, username TEXT, email TEXT, password TEXT)",
+          "CREATE TABLE users(id INTEGER PRIMARY KEY, firstName TEXT, lastName TEXT, username TEXT, email TEXT, password TEXT)",
         );
       },
       version: 1,
@@ -136,6 +159,6 @@ class User {
 
   @override
   String toString() {
-    return 'User{username: $username, email: $email, password: $password}';
+    return 'User{firstName, $firstName, lastName: $lastName, username: $username, email: $email, password: $password}';
   }
 }

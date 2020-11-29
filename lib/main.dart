@@ -8,11 +8,26 @@ Future<void> main() async {
   final Users = new User();
   await Users.createDb();
   final User1 = new User(
-      id: 0, username: 'Bob', email: 'bob@gmail.com', password: '1234');
+      id: 0,
+      firstName: 'Bobby',
+      lastName: 'Jenkins',
+      username: 'Bob',
+      email: 'bob@gmail.com',
+      password: '1234');
   final User2 = new User(
-      id: 1, username: 'Jim', email: 'jim@gmail.com', password: '1234');
+      id: 1,
+      firstName: 'Jimmy',
+      lastName: 'Fenian',
+      username: 'Jim',
+      email: 'jim@gmail.com',
+      password: '1234');
   final User3 = new User(
-      id: 1, username: 'sarah', email: 'sarah@gmail.com', password: '1234');
+      id: (await Users.getIndex() + 1),
+      firstName: 'Sarah',
+      lastName: 'Rosli',
+      username: 'sarah',
+      email: 'sarah@gmail.com',
+      password: '1234');
 
   await Users.addUser(User1);
   await Users.addUser(User2);
@@ -70,6 +85,13 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+class SignUpPage extends StatefulWidget {
+  @override
+  SignUpPageState createState() {
+    return SignUpPageState();
+  }
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   TextStyle style = TextStyle(
     fontFamily: 'Montserrat',
@@ -83,6 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final passwordController = TextEditingController(text: password);
     final usernameController = TextEditingController(text: username);
     final Users = new User();
+
     final usernameField = TextFormField(
       controller: null,
       initialValue: username,
@@ -99,6 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
           border:
               OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
+
     final passwordField = TextFormField(
       controller: null,
       initialValue: password,
@@ -115,6 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
           border:
               OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
+
     void _showAlertDialog(String message) async {
       showDialog(
         context: context,
@@ -167,6 +192,28 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
 
+    final signUpButton = Material(
+      elevation: 5.0,
+      borderRadius: BorderRadius.circular(30.0),
+      color: Colors.greenAccent,
+      child: MaterialButton(
+        minWidth: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SignUpPage()),
+          );
+        },
+        child: Text("Sign Up",
+            textAlign: TextAlign.center,
+            style: style.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                backgroundColor: Colors.greenAccent)),
+      ),
+    );
+
     return Scaffold(
       body: Center(
         child: Container(
@@ -178,7 +225,7 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 SizedBox(
-                  height: 155.0,
+                  height: 130.0,
                   child: Image.asset(
                     "assets/logo.png",
                     fit: BoxFit.contain,
@@ -195,6 +242,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 SizedBox(
                   height: 15.0,
                 ),
+                signUpButton,
               ],
             ),
           ),
@@ -342,6 +390,205 @@ class SlideRightRoute extends PageRouteBuilder {
             child: child,
           ),
         );
+}
+
+class SignUpPageState extends State<SignUpPage> {
+  final _formKey = GlobalKey<FormState>();
+
+  TextStyle style = TextStyle(
+    fontFamily: 'Montserrat',
+    fontSize: 20.0,
+  );
+  var username = "";
+  var password = "";
+  var firstName = "";
+  var lastName = "";
+  var email = "";
+
+  @override
+  Widget build(BuildContext context) {
+    final firstNameController = TextEditingController(text: firstName);
+    final lastNameController = TextEditingController(text: lastName);
+    final passwordController = TextEditingController(text: password);
+    final usernameController = TextEditingController(text: username);
+    final emailController = TextEditingController(text: email);
+    final Users = new User();
+
+    final usernameField = TextFormField(
+      controller: null,
+      initialValue: username,
+      onChanged: (value) {
+        setState(() {
+          username = value;
+        });
+      },
+      obscureText: false,
+      style: style,
+      decoration: InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          hintText: "Username",
+          border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+    );
+
+    final firstNameField = TextFormField(
+      controller: null,
+      initialValue: firstName,
+      onChanged: (value) {
+        setState(() {
+          firstName = value;
+        });
+      },
+      obscureText: false,
+      style: style,
+      decoration: InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          hintText: "First Name",
+          border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+    );
+
+    final lastNameField = TextFormField(
+      controller: null,
+      initialValue: lastName,
+      onChanged: (value) {
+        setState(() {
+          lastName = value;
+        });
+      },
+      obscureText: false,
+      style: style,
+      decoration: InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          hintText: "Last Name",
+          border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+    );
+
+    final passwordField = TextFormField(
+      controller: null,
+      initialValue: password,
+      onChanged: (value) {
+        setState(() {
+          password = value;
+        });
+      },
+      obscureText: true,
+      style: style,
+      decoration: InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          hintText: "Password",
+          border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+    );
+
+    final emailField = TextFormField(
+      controller: null,
+      initialValue: email,
+      onChanged: (value) {
+        setState(() {
+          email = value;
+        });
+      },
+      obscureText: false,
+      style: style,
+      decoration: InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          hintText: "Email",
+          border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+    );
+
+    void _showAlertDialog(String message) async {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(message),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Ok'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    final signUpButton = Material(
+      elevation: 5.0,
+      borderRadius: BorderRadius.circular(30.0),
+      color: Colors.greenAccent,
+      child: MaterialButton(
+        minWidth: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        onPressed: () async {
+          try {
+            if (usernameController.text != "" &&
+                passwordController.text != "" &&
+                firstNameController.text != "" &&
+                lastNameController.text != "" &&
+                emailController.text != "") {
+              var newUser = User(
+                  id: (await Users.getIndex() + 1),
+                  firstName: firstNameController.text,
+                  lastName: lastNameController.text,
+                  email: emailController.text,
+                  username: usernameController.text,
+                  password: passwordController.text);
+              await Users.addUser(newUser);
+              print(await Users.fetchUsers());
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/', (Route<dynamic> route) => false);
+            } else {
+              _showAlertDialog("Please fill up all the fields");
+            }
+          } catch (error) {
+            _showAlertDialog("Invalid username or password");
+          }
+        },
+        child: Text("Register Account",
+            textAlign: TextAlign.center,
+            style: style.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                backgroundColor: Colors.greenAccent)),
+      ),
+    );
+
+    return Scaffold(
+        appBar: AppBar(title: Text('Sign Up Page')),
+        body: Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Row(children: [
+                Expanded(child: firstNameField),
+                SizedBox(width: 15.0),
+                Expanded(child: lastNameField)
+              ]),
+              SizedBox(height: 10.0),
+              usernameField,
+              SizedBox(height: 10.0),
+              emailField,
+              SizedBox(height: 10.0),
+              passwordField,
+              SizedBox(
+                height: 25.0,
+              ),
+              signUpButton,
+              SizedBox(
+                height: 15.0,
+              ),
+            ],
+          ),
+        ));
+  }
 }
 
 class CreateReportPage extends StatelessWidget {

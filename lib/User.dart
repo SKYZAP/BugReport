@@ -112,6 +112,40 @@ class User {
     return selectedUser;
   }
 
+  Future<String> getEmail(String username) async {
+    final Future<Database> database = openDatabase(
+      join(await getDatabasesPath(), 'database.db'),
+      version: 1,
+    );
+    final db = await database;
+    final List<Map<String, dynamic>> user = await db.query('users',
+        columns: [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "password",
+          "username"
+        ],
+        where: 'username = ?',
+        whereArgs: [username]);
+
+    var selectedUser;
+
+    List.generate(user.length, (index) {
+      return selectedUser = User(
+        id: user[index]['id'],
+        firstName: user[index]['firstName'],
+        lastName: user[index]['lastName'],
+        username: user[index]['username'],
+        password: user[index]['password'],
+        email: user[index]['email'],
+      );
+    });
+
+    return selectedUser.email;
+  }
+
   Future<void> createDb() async {
     final Future<Database> database = openDatabase(
       join(await getDatabasesPath(), 'database.db'),
@@ -120,7 +154,7 @@ class User {
           "CREATE TABLE users(id INTEGER PRIMARY KEY, firstName TEXT, lastName TEXT, username TEXT, email TEXT, password TEXT)",
         );
         db.execute(
-          "CREATE TABLE reports(id INTEGER PRIMARY KEY, title TEXT, body TEXT, type TEXT)",
+          "CREATE TABLE reports(id INTEGER PRIMARY KEY, title TEXT, assignee TEXT, component TEXT, defect TEXT, version TEXT, severity TEXT, hardware TEXT, os TEXT, summary TEXT, reporter TEXT, product TEXT)",
         );
       },
       version: 1,

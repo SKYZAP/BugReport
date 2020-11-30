@@ -1,4 +1,5 @@
 import 'package:bug_report/User.dart';
+import 'package:bug_report/detailScreen.dart';
 import 'package:bug_report/formScreens.dart';
 import 'package:bug_report/report.dart';
 import 'package:flutter/material.dart';
@@ -38,20 +39,6 @@ Future<void> main() async {
   print(await Users.fetchUsers());
   print(await Users.signIn('Bob', '1234'));
   print(await Users.signIn('Bob', '124'));
-
-  final Reports = new Report();
-  final report1 = new Report(
-      id: 0, title: 'Report bugs', body: 'word word word words', type: 'BUG');
-  final report2 = new Report(
-      id: 1, title: 'Report bugs', body: 'word word word words', type: 'BUG');
-  final report3 = new Report(
-      id: 2, title: 'Report bugs', body: 'word word word words', type: 'BUG');
-
-  await Reports.addReport(report1);
-  await Reports.addReport(report2);
-  await Reports.addReport(report3);
-
-  await Reports.resetDb();
 }
 
 class MyApp extends StatelessWidget {
@@ -74,13 +61,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+
   final String title;
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -174,8 +155,8 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        DrawerPage(title: "Bug Report", username: username)),
+                    builder: (context) => DrawerPage(
+                        title: "View Bug Report", username: username)),
               );
             } else {
               _showAlertDialog("Invalid username or password");
@@ -275,14 +256,38 @@ class DrawerPage extends StatelessWidget {
             children: posts
                 .map(
                   (post) => ListTile(
-                    title: Text('Title: ' + post.title),
-                    subtitle: Text(post.body),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.white54,
+                      radius: 35,
+                      child: Center(
+                        child: Text(
+                          post.severity,
+                          style: TextStyle(
+                              color: post.severity == 'Critical'
+                                  ? Colors.red
+                                  : (post.severity == 'Major')
+                                      ? Colors.orange
+                                      : (post.severity == 'Moderate')
+                                          ? Colors.blueGrey
+                                          : Colors.greenAccent),
+                        ),
+                      ),
+                    ),
+                    title: Text(
+                      '[ ' + post.product + ']' + '\n' + post.title,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text('Reporter: ' + post.reporter),
                     trailing: Icon(Icons.keyboard_arrow_right),
                     onTap: () {
-                      // do something
-                    },
-                    onLongPress: () {
-                      // do something else
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailScreen(
+                            report: post,
+                          ),
+                        ),
+                      );
                     },
                   ),
                 )
@@ -292,31 +297,18 @@ class DrawerPage extends StatelessWidget {
       )),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          var rep = Report(
-              id: await Reports.getIndex() + 1,
-              title: 'Bug Report',
-              body: 'wordy word',
-              type: 'BUG');
-          Reports.addReport(rep);
-          print(await Reports.fetchReports());
-          print(await Reports.getIndex());
           Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => CreateReportPage(
                     title: "Create Bug Report", username: username)),
           );
-          // Add your onPressed code here!
         },
         child: Icon(Icons.add),
         backgroundColor: Colors.greenAccent,
       ),
       drawer: Drawer(
-        // Add a ListView to the drawer. This ensures the user can scroll
-        // through the options in the drawer if there isn't enough vertical
-        // space to fit everything.
         child: ListView(
-          // Important: Remove any padding from the ListView.
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
@@ -595,6 +587,7 @@ class CreateReportPage extends StatelessWidget {
   final String username;
   List data;
   var Reports = new Report();
+  var Users = new User();
 
   CreateReportPage({Key key, this.title, this.username}) : super(key: key);
 
@@ -609,10 +602,13 @@ class CreateReportPage extends StatelessWidget {
               title: Text('HIS KKM SIT Lite Version'),
               subtitle: Text('System Integration Test for Lite Version'),
               trailing: Icon(Icons.keyboard_arrow_right),
-              onTap: () {
+              onTap: () async {
+                var email = await Users.getEmail(this.username);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LiteProductForm()),
+                  MaterialPageRoute(
+                      builder: (context) => LiteProductForm(
+                          email: email, username: this.username)),
                 );
               },
             ),
@@ -620,33 +616,35 @@ class CreateReportPage extends StatelessWidget {
               title: Text('HIS KKM SIT System Testing'),
               subtitle: Text('System Testing for HIS KKM'),
               trailing: Icon(Icons.keyboard_arrow_right),
-              onTap: () {
-                // do something
-              },
-              onLongPress: () {
-                // do something else
+              onTap: () async {
+                var email = await Users.getEmail(this.username);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => TestingProductForm(
+                          email: email, username: this.username)),
+                );
               },
             ),
             ListTile(
               title: Text('HIS KKM UAT EMR Basic'),
               subtitle: Text('User Acceptance for EMR Basis HIS KKM'),
               trailing: Icon(Icons.keyboard_arrow_right),
-              onTap: () {
-                // do something
-              },
-              onLongPress: () {
-                // do something else
+              onTap: () async {
+                var email = await Users.getEmail(this.username);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BasicProductForm(
+                          email: email, username: this.username)),
+                );
               },
             )
           ],
         ),
       ),
       drawer: Drawer(
-        // Add a ListView to the drawer. This ensures the user can scroll
-        // through the options in the drawer if there isn't enough vertical
-        // space to fit everything.
         child: ListView(
-          // Important: Remove any padding from the ListView.
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(

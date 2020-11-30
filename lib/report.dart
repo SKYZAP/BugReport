@@ -4,19 +4,47 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class Report {
-  Report({this.id, this.title, this.body, this.type});
+  Report(
+      {this.id,
+      this.title,
+      this.assignee,
+      this.component,
+      this.defect,
+      this.version,
+      this.severity,
+      this.hardware,
+      this.os,
+      this.summary,
+      this.reporter,
+      this.product});
 
   final int id;
   final String title;
-  final String body;
-  final String type;
+  final String assignee;
+  final String component;
+  final String defect;
+  final String version;
+  final String severity;
+  final String hardware;
+  final String os;
+  final String summary;
+  final String reporter;
+  final String product;
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'title': title,
-      'body': body,
-      'type': type,
+      'assignee': assignee,
+      'component': component,
+      'defect': defect,
+      'version': version,
+      'severity': severity,
+      'hardware': hardware,
+      'os': os,
+      'summary': summary,
+      'reporter': reporter,
+      'product': product,
     };
   }
 
@@ -30,11 +58,18 @@ class Report {
     final List<Map<String, dynamic>> maps = await db.query('reports');
     return List.generate(maps.length, (i) {
       return Report(
-        id: maps[i]['id'],
-        title: maps[i]['title'],
-        body: maps[i]['body'],
-        type: maps[i]['type'],
-      );
+          id: maps[i]['id'],
+          title: maps[i]['title'],
+          assignee: maps[i]['assignee'],
+          component: maps[i]['component'],
+          defect: maps[i]['defect'],
+          version: maps[i]['version'],
+          severity: maps[i]['severity'],
+          hardware: maps[i]['hardware'],
+          os: maps[i]['os'],
+          summary: maps[i]['summary'],
+          reporter: maps[i]['reporter'],
+          product: maps[i]['product']);
     });
   }
 
@@ -89,6 +124,6 @@ class Report {
 
   @override
   String toString() {
-    return 'Report{title: $title, body: $body, type: $type}';
+    return 'Report{title: $title, assignee: $assignee, component: $component, defect: $defect, version: $version, severity: $severity, hardware: $hardware, os: $os, summary: $summary, reporter: $reporter, product: $product}';
   }
 }

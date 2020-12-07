@@ -28,7 +28,7 @@ Future<void> main() async {
       firstName: 'Sarah',
       lastName: 'Rosli',
       username: 'sarah',
-      email: 'sarah@gmail.com',
+      email: 's2g@hotmail.com',
       password: '1234');
 
   await Users.addUser(User1);

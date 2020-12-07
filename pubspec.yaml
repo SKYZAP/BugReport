@@ -33,12 +33,16 @@ dependencies:
   smart_select: ^4.3.2
   sticky_headers: ^0.1.8
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^1.10.4
   json_serializable: ^3.2.0
+  flutter_launcher_icons: ^0.7.3
+
+flutter_icons:
+  android: "launcher_icon"
+  image_path: "assets/icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
